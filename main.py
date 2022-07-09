@@ -34,5 +34,56 @@ def _get_index_html(headers: Headers) -> None:
         file.write(r.text)
 
 
+def _write_in_json_file(name: str, data: dataclass):
+    with open(f"{name}.json", "a") as file:
+        json.dump(data, file, indent=4, ensure_ascii=False)
+
+
 def get_data_file(headers: Headers) -> None:
+    """Collect data and return a JSON file"""
     _get_index_html(headers=headers)
+
+    offset = 0
+    img_count = 0
+    # result_list = []
+
+    @dataclass(slots=True)
+    class ResultList:
+        title: str
+        description: str
+        url: str
+        images: str
+
+    while True:
+        url = f"https://s1.landingfolio.com/api/v1/inspiration/?offset={offset}&color=%23undefined"
+
+        response = requests.get(url=url, headers={"User-Agent": headers.user_agent, "Accept": headers.accept})
+        data = response.json()
+
+        for item in data:
+            if "description" in item:
+
+                images = item.get("images")
+                img_count += len(images)
+
+                for img in images:
+                    img.update({"url": f"https://landingfoliocom.imgix.net/{img.get('url')}"})
+
+                # result_list.append(
+                #     {
+                #         "title": item.get("title"),
+                #         "description": item.get("description"),
+                #         "url": item.get("url"),
+                #         "images": images
+                #     })
+                result_list = ResultList(title=item.get("title"), description=item.get("description"),
+                                         url=item.get("url"), images=images,)
+            else:
+                _write_in_json_file()
+                return f"[INFO] Work finished. Images count is: {img_count}\n{'=' * 20}"
+    print(f"[+] Processed {offset}")
+    offset += 1
+
+
+
+get_data_file(headers=headers)
