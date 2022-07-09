@@ -27,8 +27,12 @@ headers = Headers(user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
                          "q=0.8,application/signed-exchange;v=b3;q=0.9")
 
 
-def get_data_file(headers: Headers):
+def _get_index_html(headers: Headers) -> None:
     url = "https://www.landingfolio.com/"
-    r = requests.get(url=url, headers={"User-Agent":headers.user_agent, "Accept":headers.accept})
+    r = requests.get(url=url, headers={"User-Agent": headers.user_agent, "Accept": headers.accept})
     with open("index.html", "w") as file:
         file.write(r.text)
+
+
+def get_data_file(headers: Headers) -> None:
+    _get_index_html(headers=headers)
