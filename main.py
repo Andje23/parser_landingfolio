@@ -85,4 +85,36 @@ def get_data_file(headers: Headers) -> None:
     print(f"[+] Processed {offset}")
     offset += 1
 
-get_data_file(headers=headers)
+
+def download_imgs(file_path):
+    """Download images"""
+
+    try:
+        with open(file_path) as file:
+            scr = json.load(file)
+    except Exception as _ex:
+        print(_ex)
+        return "[INFO] Check the file path!"
+
+    items_len = len(scr)
+    count = 1
+
+    for item in scr:
+        item_name = item.get("title")
+        item_imgs = item.get("images")
+
+        if not os.path.exists(f"data/{item_name}"):
+            os.mkdir(f"data/{item_name}")
+
+        for img in item_imgs:
+            r = requests.get(url=img["url"])
+
+            with open (f"data/{item_name}/{img['type']}.png", "wb") as file:
+                file.write(r.content)
+
+        print(f"[+] Download {count}/{items_len}")
+        count += 1
+
+    return "[INFO] Work finished!"
+
+
