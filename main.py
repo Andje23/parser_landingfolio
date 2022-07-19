@@ -1,9 +1,9 @@
-import requests
 import json
 import os
 import time
-
 from dataclasses import dataclass
+
+import requests
 
 
 # headers = {
@@ -86,7 +86,7 @@ def get_data_file(headers: Headers) -> None:
     offset += 1
 
 
-def download_imgs(file_path):
+def download_imgs(file_path: json) -> str:
     """Download images"""
 
     try:
@@ -109,7 +109,7 @@ def download_imgs(file_path):
         for img in item_imgs:
             r = requests.get(url=img["url"])
 
-            with open (f"data/{item_name}/{img['type']}.png", "wb") as file:
+            with open(f"data/{item_name}/{img['type']}.png", "wb") as file:
                 file.write(r.content)
 
         print(f"[+] Download {count}/{items_len}")
@@ -118,3 +118,15 @@ def download_imgs(file_path):
     return "[INFO] Work finished!"
 
 
+def main():
+    start_time = time.time()
+
+    print(get_data_file(headers=headers))
+    print(download_imgs("result_list.json"))
+
+    finish_time = time.time() - start_time
+    print(f"Worked time: {finish_time}")
+
+
+if __name__ == '__main__':
+    main()
